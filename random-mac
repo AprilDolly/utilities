@@ -1,0 +1,22 @@
+#!/usr/bin/python3
+import subprocess
+import random
+#from generate_mac import generate_mac
+def generate_address():
+    vals=[]
+    vals.append(hex(00))
+    for i in range(5):
+        val=hex(random.randrange(17,256)).split('x')[-1]
+        vals.append(val)
+    return ':'.join(vals)
+net_devices=[]
+output=subprocess.check_output(['lshw', '-class' ,'network']).decode('utf-8').split('\n')
+for line in output:
+    if 'logical name:' in line:
+        dn=line.split(' ')[-1]
+        net_devices.append(dn)
+for device in net_devices:
+    subprocess.check_output(['ip','link','set','dev',device,'down'])
+    #subprocess.check_output(['ip','link','set','dev',device,'address',generate_mac.total_random()])
+    subprocess.check_output(['ip','link','set','dev',device,'address',generate_address()])
+    subprocess.check_output(['ip','link','set','dev',device,'up'])
